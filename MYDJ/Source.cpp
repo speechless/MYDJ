@@ -1,8 +1,6 @@
 #include "stdafx.h"
+#include "YouTube.h"
 
-#include <openssl\bio.h>
-#include <openssl\ssl.h>
-#include <openssl\err.h>
 
 int main (int argc, char * argv[])
 {
@@ -12,46 +10,49 @@ int main (int argc, char * argv[])
 	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
 
-	BIO* bio = BIO_new_connect("www.google.com:80");
-	if (bio == NULL) {
-		printf("Error creating BIO!\n");
-		ERR_print_errors_fp(stderr);
-		return 0;
-	}
+	std::string videoID = "HgNLrVk1BXU";
 
-	if (BIO_do_connect(bio) <= 0) {
-		printf("Failed to connect!");
-		return 0;
-	}
-
-	std::string buf;
-	buf.resize(1024);
+/*	// Debug: delete this
+	printf("Enter youtube video id\n");
+	printf("eg: for https://www.youtube.com/watch?v=D0ZUDvoJFzY the id will be: D0ZUDvoJFzY\n");
+	std::cin >> videoID;
+	printf("\n\n");
+	printf("User input:[%s]\n",videoID.c_str());
+	printf("Getting download link\n");
+	// Debug: end
+*/
+	std::string videolink = YouTube::GetDownloadLink(videoID,"22","37","18");
 	
-	std::string send =	"GET / HTTP/1.1\r\n"
-						"Host:www.google.com\r\n"
-//						"User Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\n"
-						"Connection: Close\r\n\r\n";
-	BIO_puts(bio, send.c_str());
+	// Debug: delete this
+//	printf("Download link generated -----\n%s\n",videolink.c_str());
+	// Debug: end
 
-	while (1) {
-		int x = BIO_read(bio, &buf[0], buf.length());
+	int result = YouTube::DownloadVideoToHDD(videolink,videoID + ".mp4");
 
-		if (x == 0) {
-			break;
-		}
-		else if (x < 0) {
-			if (!BIO_should_retry(bio)) {
-				printf("\nRead Failed!\n");
-				BIO_free_all(bio);
-				return 0;
-			}
-		}
-		else {
-			buf[x] = 0;
-			printf("%s",buf);
-		}
+/*	std::string virtualhdd;
+	int result = YouTube::DownloadVideoToRAM(videolink, virtualhdd);
+
+	std::fstream file;
+	file.open(videoID + ".mp4", std::ios::out | std::ios::binary | std::ios::trunc);
+	file.write(virtualhdd.c_str(),virtualhdd.length());
+	file.close();
+	virtualhdd.clear();
+	virtualhdd.shrink_to_fit();
+*/	
+	if (result == 0) {
+		printf("Download Successful!\n");
 	}
+	else if (result == -1) {
+		printf("Error, invalid videoID\nPlease make sure you have typed the ID in correctly\n");
+	}
+	else if (result > 0) {
+		printf("Download failed, %i bytes missing\n", result);
+	}
+	else {
+		printf("System Error! CODE: %i\n", result);
+	}
+	
+	system ("pause");
 
-	BIO_free_all(bio);
 	return 0;
 }
