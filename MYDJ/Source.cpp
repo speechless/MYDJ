@@ -12,33 +12,25 @@ int main (int argc, char * argv[])
 
 	std::string videoID = "HgNLrVk1BXU";
 
-/*	// Debug: delete this
-	printf("Enter youtube video id\n");
-	printf("eg: for https://www.youtube.com/watch?v=D0ZUDvoJFzY the id will be: D0ZUDvoJFzY\n");
-	std::cin >> videoID;
-	printf("\n\n");
-	printf("User input:[%s]\n",videoID.c_str());
-	printf("Getting download link\n");
-	// Debug: end
-*/
-	std::string videolink = YouTube::GetDownloadLink(videoID,"22","37","18");
-	
-	// Debug: delete this
-//	printf("Download link generated -----\n%s\n",videolink.c_str());
-	// Debug: end
+	std::string videolink;
+	for (int attempt = 1; attempt <= 3; attempt++) {
+		printf("attempt %i\n", attempt);
+
+		videolink = YouTube::GetDownloadLink(videoID,"22","37","18");
+		if (!videolink.empty()) {
+			break;
+		}
+
+		if (attempt == 3) {
+			printf("failed to access the youtube servers\n");
+			return 0;
+		}
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 
 	int result = YouTube::DownloadVideoToHDD(videolink,videoID + ".mp4");
 
-/*	std::string virtualhdd;
-	int result = YouTube::DownloadVideoToRAM(videolink, virtualhdd);
-
-	std::fstream file;
-	file.open(videoID + ".mp4", std::ios::out | std::ios::binary | std::ios::trunc);
-	file.write(virtualhdd.c_str(),virtualhdd.length());
-	file.close();
-	virtualhdd.clear();
-	virtualhdd.shrink_to_fit();
-*/	
 	if (result == 0) {
 		printf("Download Successful!\n");
 	}

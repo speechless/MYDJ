@@ -31,11 +31,21 @@ std::string decodeURLstring (const std::string & url);
 std::string YouTube::GetDownloadLink (const std::string & videoID, std::string option1, std::string option2, std::string option3)
 {
 	std::string response = DownloadVideoInformation(videoID);
-	response = getFMTstream(response);
-	response = decodeURLstring (response);
-	std::vector <FMTstream> links = parseFMTstream(response);
+	if (response.empty()) {
+		return std::string();
+	}
 
-	// Todo: error checking code for invalid video
+	response = getFMTstream(response);
+	if (response.empty()) {
+		return std::string();
+	}
+
+	response = decodeURLstring (response);
+
+	std::vector <FMTstream> links = parseFMTstream(response);
+	if (links.empty()) {
+		return std::string();
+	}
 
 	// Option 1
 	for (unsigned int option = 0; option < links.size(); option++)
@@ -105,7 +115,6 @@ int YouTube::DownloadVideoToHDD (const std::string & address, const std::string 
 	std::string streambuf;
 	int bytes = -1;
 	int remaining;
-	unsigned int gui = 0; // Debug: delete this
 
 	buffer.resize(MAXBUF);
 
@@ -147,14 +156,6 @@ int YouTube::DownloadVideoToHDD (const std::string & address, const std::string 
 			{
 				file.write(buffer.c_str(),x);
 				remaining -= x;
-
-				// Debug: delete this
-				if (gui == 0) {
-					printf("Remaining: %i bytes of %i bytes\n",remaining,bytes);
-					gui = 500;
-				}
-				gui--;
-				// Debug: end
 			}
 		}
 	}
@@ -196,7 +197,6 @@ int YouTube::DownloadVideoToRAM (const std::string & address, std::string & virt
 	std::string streambuf;
 	int bytes = -1;
 	int remaining;
-	unsigned int gui = 0; // Debug: delete this
 
 	buffer.resize(MAXBUF);
 
@@ -239,14 +239,6 @@ int YouTube::DownloadVideoToRAM (const std::string & address, std::string & virt
 			{
 				virtualhdd.append(buffer.substr(0,x));
 				remaining -= x;
-
-				// Debug: delete this
-				if (gui == 0) {
-					printf("Remaining: %i bytes of %i bytes\n",remaining,bytes);
-					gui = 500;
-				}
-				gui--;
-				// Debug: end
 			}
 		}
 	}
@@ -268,7 +260,6 @@ std::string DownloadVideoInformation (const std::string & videoID)
 	BIO* bio = BIO_new_connect(&address[0]);
 
 	if (bio == NULL) {
-		printf("Error creating BIO!\n");
 		ERR_print_errors_fp(stderr);
 		return std::string();
 	}
@@ -366,13 +357,17 @@ std::vector <FMTstream> parseFMTstream (const std::string & serial)
 			}
 		}
 
-		video.fallback_host = decodeURLstring(video.fallback_host);
-		video.itag = decodeURLstring(video.itag);
-		video.quality = decodeURLstring(video.quality);
-		video.sig = decodeURLstring(video.sig);
-		video.type = decodeURLstring(video.type);
-		video.url = decodeURLstring(video.url);
-		videoList.push_back(video);
+		if (!video.fallback_host.empty() && !video.itag.empty() && !video.quality.empty()
+			&& !video.sig.empty() && !video.type.empty() && !video.url.empty())
+		{
+			video.fallback_host = decodeURLstring(video.fallback_host);
+			video.itag = decodeURLstring(video.itag);
+			video.quality = decodeURLstring(video.quality);
+			video.sig = decodeURLstring(video.sig);
+			video.type = decodeURLstring(video.type);
+			video.url = decodeURLstring(video.url);
+			videoList.push_back(video);
+		}
 	}
 
 	return videoList;

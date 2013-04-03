@@ -20,6 +20,10 @@ namespace YouTube {
 	//	option2: 2nd most preferred itag
 	//	option3: 3nd most preferred itag
 	//
+	// return:
+	//	string containing youtube download link.
+	//	returns empty string if function fails.
+	//
 	// notes:
 	//	if none of the user choosen itag is found, function will return the download link for the first itag it parses.
 	//	itag codes can be found here: https://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
@@ -35,6 +39,10 @@ namespace YouTube {
 	//	address:	youtube download address for target video (obtained from GetDownloadLink)
 	//	virtualhdd: storage for downloaded video
 	//
+	// returns:
+	//	number of bytes remaining, (0 means successful download)
+	//	-1 means failed to connect to webhost
+	//
 	// Notes:
 	//	to reclaim used virtual hard drive space: clear and shrink variable
 	//	virtualhdd.clear();	virtualhdd.shrink_to_fit();
@@ -46,9 +54,13 @@ namespace YouTube {
 	//	downloads target video to program ram. this download mode is 
 	//	recommended to save on write cycles to harddrive.
 	// 
-	// Params:
+	// params:
 	//	address:	youtube download address for target video (obtained from GetDownloadLink)
-	//	virtualhdd: storage for downloaded video
+	//	virtualhdd: storage for downloaded video (function output)
+	//
+	// returns:
+	//	number of bytes remaining, (0 means successful download)
+	//	-1 means failed to connect to webhost
 	//
 	// Notes:
 	//	to reclaim used virtual hard drive space: clear and shrink variable
