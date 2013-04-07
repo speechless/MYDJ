@@ -115,6 +115,7 @@ int YouTube::DownloadVideoToHDD (const std::string & address, const std::string 
 	std::string streambuf;
 	int bytes = -1;
 	int remaining;
+	/**/ int GUI = 0;
 
 	buffer.resize(MAXBUF);
 
@@ -156,6 +157,11 @@ int YouTube::DownloadVideoToHDD (const std::string & address, const std::string 
 			{
 				file.write(buffer.c_str(),x);
 				remaining -= x;
+			/**/if (GUI < 1) {
+			/**/	GUI = 250;
+			/**/	printf("Remaining: %0.2fMB\n",(float)(remaining/1048576.0));
+			/**/ }
+			/**/ GUI--;
 			}
 		}
 	}

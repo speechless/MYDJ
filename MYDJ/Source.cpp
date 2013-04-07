@@ -10,13 +10,16 @@ int main (int argc, char * argv[])
 	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
 
-	std::string videoID = "HgNLrVk1BXU";
+	std::string videoID = "SG00cz3oOrk";
+
+///**/std::cout << "Enter video ID:";
+///**/std::cin >> videoID;
 
 	std::string videolink;
 	for (int attempt = 1; attempt <= 3; attempt++) {
 		printf("attempt %i\n", attempt);
 
-		videolink = YouTube::GetDownloadLink(videoID,"22","37","18");
+		videolink = YouTube::GetDownloadLink(videoID,"18","22","37");
 		if (!videolink.empty()) {
 			break;
 		}
@@ -44,7 +47,10 @@ int main (int argc, char * argv[])
 		printf("System Error! CODE: %i\n", result);
 	}
 	
-	system ("pause");
+	printf("converting to audio\n");
+	std::string command = "ffmpeg.exe -i " + videoID + ".mp4 -vn " + videoID + ".opus";
+	system (command.c_str());
+	printf("conversion complete\n");
 
 	return 0;
 }
